@@ -1,0 +1,96 @@
+---
+pubDatetime: 2024-01-02T20:47:31-08:00
+modDatetime: 2024-01-02T20:47:31-08:00
+slug: checking-links-with-github-actions
+title: Checking Links with GitHub Actions
+draft: false
+featured: false
+tags:
+  - documentation
+description: How I set up link checking for my blog using GitHub Actions
+---
+
+## Automation is Good, Actually
+
+[GitHub Actions](https://github.com/features/actions) give you superpowers. The first and most obvious applications I've
+found for it are the normal CI/CD processes which are the bread and butter of any good software project: builds, unit
+testing, etc. But I've also found it useful for automating other tasks, like checking links.
+
+With this site, I am not only writing a blog, I am collecting a set of best practices for static, internet-connected
+content sites. I love automation, as I am but one person who is always juggling a dozen different priorities. I want to
+automate as much as I can, and help others do the same.
+
+Keeping bad and broken links off your site is a critical part of maintaining a good user experience. Broken links
+make your website look broken. They also make it harder for search engines to index your site, and can hurt
+your search ranking. It's just a bad experience we can all relate to.
+
+## Enter Lychee and GitHub Actions
+
+After looking around for a bit, this appears to be one of the most popular ways to check links on GitHub. I tested it
+for a while, and it works great for me. I am ready to comfortably let it run and wait for it to send me
+emails on failure. I've tested it by deliberately putting bad links in my Markdown and it promptly yelled at me.
+Side note, remember to test your automations!
+
+This action is a wrapper around the [lychee](https://github.com/lycheeverse/lychee) link checker, another amazing
+tool written in [Rust](https://www.rust-lang.org/). The action will spin up a container and load lychee into it,
+then run it with the arguments you provide. It will then save the output to a file which you can review. The link
+checker runs daily at 6pm UTC, and will also run when you manually trigger it.
+
+## Customizing for the Blog
+
+I keep all of my images in the `assets` folder, which allows Astro to automatically do some incredible image
+compression and optimization magic when it builds and deploys my blog (which is also handled by an automation on my
+hosting provider). Because they reside in the `assets` folder, link checkers are not able to resolve them, either
+by alias or absolute path, and will report them as broken links.
+
+To get around this, I use the `--exclude` flag to tell the link checker to ignore any links that contain the string
+`@assets`. This is an alias that exists for all of my image links. It would be nice if I could check my image links,
+too. However, that would only be possible on the running site, at which point the files have been transformed and no
+longer exist in the same form as they do in the repository.
+
+I also added the formats I use on this site: mdx and mdoc.
+
+## Code
+
+`/.github/workflows/links.yml`
+
+```yaml
+name: Links
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  schedule:
+    - cron: "00 18 * * *"
+
+jobs:
+  linkChecker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Link Checker
+        id: lychee
+        uses: lycheeverse/lychee-action@v1.8.0
+        with:
+          args: --exclude '.*@assets.*' --verbose --no-progress './**/*.md' './**/*.mdx' './**/*.mdoc' './**/*.html'
+
+      - name: Create Issue From File
+        if: env.lychee_exit_code != 0
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title: Link Checker Report
+          content-filepath: ./lychee/out.md
+          labels: report, automated issue
+```
+
+## Conclusion
+
+Short article this time, folks. I just wanted to share this GitHub action and encourage my fellow static site builders
+to automate your link checking. This is one of many methods to accomplish this essential task.
+
+## Reference
+
+- [GitHub Actions](https://github.com/features/actions)
+- [lychee](https://github.com/lycheeverse/lychee)
+- [lychee-action](https://github.com/lycheeverse/lychee-action)

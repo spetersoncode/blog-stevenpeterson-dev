@@ -1,0 +1,172 @@
+---
+pubDatetime: 2024-01-01T10:21:00-08:00
+modDatetime: 2024-01-01T10:21:00-08:00
+slug: exploring-markdoc-and-starlight
+title: Exploring Markdoc and Starlight
+draft: false
+featured: false
+tags:
+  - documentation
+description: Discovering Astro leads to more new discoveries
+---
+
+Happy New Year! In 2023, I put a huge amount of energy into learning and processing new skills. My 2024 resolution is to
+flip the switch from input to output. It's time to share what I've learned and use my skills to build more projects.
+That also means: embracing imperfection, being ok with making mistakes in public, learning from mistakes, pushing
+through roadblocks, setting milestones, and keeping them.
+
+With that out of the way, let's turn to the topic of this post.
+
+## One Thing Leads to Another
+
+Discovering a promising new framework like [Astro](https://astro.build/) is exciting because within that framework there
+are usually many other
+new technologies to discover, leading to a chain reaction of exciting new possibilities and new approaches. Astro has
+been no exception. It feels a lot like when I discovered [Rust](https://www.rust-lang.org/), then discovered a bunch
+of [amazing](https://starship.rs/) [tools](https://www.nushell.sh/) [built](https://pola.rs) [in](https://github.com/BurntSushi/ripgrep) [Rust](https://github.com/astral-sh/ruff)
+that I now use daily.
+
+I want to talk about two of these new discoveries in this post: [Markdoc](https://markdoc.dev/)
+and [Starlight](https://starlight.astro.build/).
+
+## Documentation as Code
+
+Before I dive into these technologies, let's talk about why we care about documentation tools in the first place.
+
+I have become an accidental expert in best practices for documentation over the past few years. I have
+written my share of technical documentation over the years, enough to know what practices lend themselves to good
+documentation and what practices do not. I have worked with folks who struggle to get their hands around all the
+documentation they are producing, usually in siloed departments which are not collaborating efficiently with each other.
+I have also been on the receiving end of documentation, both good and bad.
+
+One DevOps practice that I believe in strongly is [Docs as Code](https://www.writethedocs.org/guide/docs-as-code/): the
+practice of maintaining documentation the same way that we
+maintain our code, leveraging the same toolchains and workflows such as version control and code reviews.
+Software developers have an excellent handle on how to collaboratively maintain a large base of plain text files, and we
+can take advantage of those workflows to maintain our documentation as well. This helps keep our code and documentation
+accurate, turns documentation into an agile and iterative process, and opens the door to seamless collaboration between
+developers and content writers. With the right software (like Docusaurus or Starlight, which I will be discussing later
+in this post), documentation can be built and deployed into a responsive, interactive format automatically whenever a
+change is made.
+
+## Markdoc
+
+### What is Markdoc?
+
+Markdoc is the new kid on the block of Markdown variants with component-based superpowers. Markdoc was created by Stripe
+to power their own user-facing documentation. Subsequently, Stripe open-sourced Markdoc and released it to the public.
+
+Markdoc is a superset of Markdown that allows you to embed components in your Markdown files, much like MDX. Where it is
+different from MDX is that rather than dropping into full JSX syntax in your documents, specifying import files and
+calling your components in a JSX tag, Markdoc uses a declarative syntax that is more template-like.
+Instead of adding import statements in your content, you add them to a configuration file and reference them like so in
+your Markdoc:
+
+```
+{% tag param="value" %}
+```
+
+### Why Markdoc?
+
+In practice, both MDX and Markdoc accomplish the same goal: allowing you to use components in your Markdown files. What
+are the benefits of Markdoc over MDX?
+
+- No import statements and paths in your Markdown files 🥳😎💯
+- Shifts technical burden from content authors to site admins
+- Clean separation of code and presentation
+- Easier to migrate from one platform to another
+- Out of the box templates for tables, partials, loops, and conditionals
+
+The primary drawback of Markdoc is that there is a little more upfront configuration involved, as you have to specify
+which tags
+you will recognize, and which components they map to. This is essentially doing the work your content authors have to do
+every time they use an MDX component. Like switching from JavaScript to TypeScript (another topic I'm fired up about
+and will probably author a post on someday), it is a modest one-time investment that pays dividends in the long run.
+
+### Table tag
+
+Markdoc does not come with a lot of their own tags built in. It is on the site admin to define the tags they want to
+support and link them to components. There is one very notable tag built-in out of the box, because apparently Stripe
+dislikes Markdown tables as much as I do: the table tag.
+
+Here is a simple example of the table tag, straight from the Markdoc docs. See
+the [linked documentation](https://markdoc.dev/docs/tags#table) for more complex examples. I found Astro's Markdoc
+integration could handle some of the "table with rich context" examples, but not all of them.
+
+```
+{% table %}
+* Heading 1
+* Heading 2
+---
+* Row 1 Cell 1
+* Row 1 Cell 2
+---
+* Row 2 Cell 1
+* Row 2 cell 2
+{% /table %}
+```
+
+The built in tags also support partials, conditionals, loops and other features. I won't get into them here but they are
+all available in the [Markdoc documentation](https://markdoc.dev/docs/getting-started).
+
+### IDE Support
+
+There is an
+official [Visual Studio Code extension for Markdoc](https://github.com/markdoc-extra/vscode-markdoc/tree/main). Nothing
+for JetBrains. 😔 Visual Studio Code works pretty well for documentation projects though, as a lot of times you are
+just jumping in to quickly change a few bits of content.
+
+## Starlight
+
+[Starlight](https://starlight.astro.build/) is Astro's take on a documentation management system
+like [Docusaurus](https://docusaurus.io/). As of this writing, the version is
+0.15.1, which I take to mean "not yet ready for production use." Let that preface any criticism of the product. For the
+most part, I find Starlight very usable, and it has all the things I love about Astro built-in.
+
+![Starlight - Markdown, Markdoc and MDX](@assets/images/2024/01/starlight-markdoc.png)
+
+The front page of Starlight prominently states it has Markdoc support, and this will hopefully be true by the time it
+reaches 1.0, but
+today's reality is not that cut and
+dry. [Astro supports Markdoc with an integration](https://docs.astro.build/en/guides/integrations-guide/markdoc/) you
+can install, but Markdoc
+does not work out of
+the box in Astro Starlight. Nor is there any effort to support Markdoc as a first-class citizen in Starlight with
+supporting configuration. I was disappointed to learn that Markdoc, even after installed, does not work with
+Astro's [Expressive Code](https://github.com/expressive-code/expressive-code) integration. In my Markdoc
+files, the code blocks were completely unstyled, no syntax highlighting. The Markdoc integration explains how to
+configure your site to use Shiki syntax highlighting in Markdoc, but much like on this blog, the copy buttons on my code
+blocks are conspicuously absent.
+
+I could just step back and keep using MDX, which is already an excellent technology, but after learning about how
+Markdoc separates code from presentation, I am growing ever more frustrated with maintaining these import statements and
+file paths. I agree with the core philosophy that import statements are code, and we should keep code out of our content
+to the extent possible.
+
+## Conclusion
+
+Learning about Astro, Starlight, and Markdoc has me re-thinking my approach to documentation, and I am excited to see
+where it leads. I think Markdoc is ultimately the better approach but the ecosystem has not yet grown around it to the
+extent that it has around MDX. While I'm not jumping into Markdoc with both feet, I am definitely testing the waters. I
+am actively testing out converting one of my newer documentation projects, which uses Docusaurus and MDX, to Starlight
+and
+Markdoc. In the process, I'm converting the components used in the project to `.astro` files. 🚀
+
+## References
+
+Markdoc
+
+- [Markdoc](https://markdoc.dev/)
+- [Markdoc Documentation](https://markdoc.dev/docs/getting-started)
+- [Astro Integrations - Markdoc](https://docs.astro.build/en/guides/integrations-guide/markdoc/)
+- [How Stripe builds interactive docs with Markdoc](https://stripe.com/blog/markdoc)
+- [Visual Studio Code extension for Markdoc](https://github.com/markdoc-extra/vscode-markdoc/tree/main)
+
+Starlight
+
+- [Starlight](https://starlight.astro.build/)
+- [Starlight Documentation](https://starlight.astro.build/getting-started/)
+
+Other
+
+- [Expressive Code](https://github.com/expressive-code/expressive-code)

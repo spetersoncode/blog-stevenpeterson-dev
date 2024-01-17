@@ -1,0 +1,211 @@
+---
+pubDatetime: 2023-12-30T15:31:35-08:00
+modDatetime: 2023-12-30T20:16:00-08:00
+slug: reviewing-static-site-generators-for-blogging
+title: Reviewing Static Site Generators For Blogging
+draft: false
+featured: false
+tags:
+  - blog
+description: Detailing my search for the right Static Site Generator to run this blog
+---
+
+I've had the idea floating around in my head of starting a new blog for a couple of months. I don't necessarily want
+to become a blogger or post constantly, but I do want to have a place to share my thoughts and work. I
+especially want a place where I can share solutions to problems I've handled. Some of the hardest tech problems I've
+dealt with were solved by a random person's blog. I would like to be that random person for someone someday.
+
+## Requirements
+
+My requirements for a blogging platform are straightforward. I need it to be static, fast, and straightforward to use.
+
+1. **Static**: I don't want to have to worry about a backend or database. I need to be able to write all my posts in
+   plain text and maintain them in a git repo.
+2. **Fast**: I need the site to render quickly, perform quickly on the client, and be quick to deploy. I need to be
+   able to quickly make adjustments to my content.
+3. **Easy to use**: I need to be able to write my posts in Markdown. I need to be able to use my existing skills and
+   tools to maintain my content and my blog. I don't want to have to learn a new language or use a new toolchain.
+
+While those are my requirements, there are some other features that would be really nice to have.
+
+1. **Deployment speed**: Having the deployed site perform as quickly as possible is a must, but I also want to be able
+   to deploy quickly when I push a change to the remote repo.
+2. **Flexibility**: I want to be able to add new features to the site easily. I want to be able to add new pages, new
+   components, and new functionality without having to jump through hoops.
+3. **MDX**: I want to be able to use [MDX](https://mdxjs.com/) to write my posts. I want to be able to use TSX
+   components in my posts, so I can add any functionality I want to my Markdown content.
+
+## What I'm Using: Astro
+
+![Astro Logo](@assets/images/2024/01/astro-banner.png)
+
+The option I ended up taking is the JavaScript framework [Astro](https://astro.build/). Astro is a framework-agnostic
+static site generator that works great with TSX components and TypeScript. It is built with static site
+generation as a primary
+concern, and it is quite fast. The first time I generated a site, I thought it failed because it ran so fast. Astro is
+a pleasure to use, and it has a lot of great themes available to get you started. The themes are actually complete
+Astro starter templates with developer tooling pre-configured by the theme author.
+
+Astro blog content is written in Markdown documents with type-checked frontmatter. You can also add your own custom
+type-checked elements. Astro has integrations to get MDX running, and many themes already have it installed. Astro blogs
+are fully customizable with all the power of a full-fledged, mature JavaScript framework under the hood.
+
+Because your content's frontmatter is type checked, there will likely be required fields. You should set up code
+templates in your IDE to make it easy to create new posts. I use [WebStorm](https://www.jetbrains.com/webstorm/), and I have a template set up to
+create a new post with the required frontmatter fields already filled in.
+
+### AstroPaper Theme 🎨
+
+Before settling on a theme, I looked at and played with quite a few of them. Regardless of my opinions of
+individual themes, I am impressed with how quickly any of them can be turned around into a working blog with a long
+list of modern features. I am also impressed with the effort and the care that theme maintainers obviously put not
+only into the look and feel of their offerings, but the developer experience as well. I would like to specifically
+call out [Astro Boilerplate](https://astro.build/themes/details/astro-boilerplate/) and
+[Astro Cactus](https://astro.build/themes/details/astro-cactus/) as two themes that I really liked and almost went
+with.
+
+In the end, the theme I decided to go with is [AstroPaper](https://astro.build/themes/details/astro-paper/). I chose
+AstroPaper because it is clear, clean, and lightweight. Unlike many of the other themes I looked at, AstroPaper does
+not neglect the desktop experience and gives the content more room to breathe than most mobile-optimized themes. The
+developer tooling is excellent, including Tailwind which is all but mandatory for me. AstroPaper is thoughtful in its
+configuration options, and it works out of the box with very little configuration required.
+
+That isn't to say that AstroPaper is without issues. For one thing, the latest version still uses Astro v3, while
+Astro v4 is the version that is live currently. The author also decided not to include MDX, which I really wanted
+to see in my winning solution at this point. None of these problems are beyond fixing, though, and in a future post
+I will detail how I upgraded AstroPaper to Astro v4 and added MDX support.
+
+### Issues with Astro 🤔
+
+**Compiler and Linter Errors**
+
+I have run into some issues that, while not show-stoppers, are annoying and worth mentioning. WebStorm is my IDE
+of choice, and JetBrains does not play nicely with Astro as of this writing. It generates a lot of compiler and linter
+false alarms. Some manual configuration is required to even make it functional, at least with the themes I have tried.
+
+[The issues I experience are documented on YouTrack](https://youtrack.jetbrains.com/issue/WEB-59503/IDE-shows-Corresponding-file-is-not-included-in-tsconfig.json-error-for-Astro-files-with-installed-typescript)
+and JetBrains is working on it. As a workaround, someone suggested using the bundled Typescript interpreter rather than
+the one that comes in the Astro package. This addresses many but not all the issues with strange errors.
+
+I also noticed this warning when building my site (it scrolls by quickly)
+
+```bash
+07:58:31 [check] Getting diagnostics for Astro files in C:\Dev\Astro\stevenpeterson-dev...
+WARNING: Checking `.jsx` and `.tsx` files is temporarily disabled due to an issue in the Astro language server and
+TypeScript. See https://github.com/withastro/language-tools/issues/727 for more details. In the meantime, such files
+can be checked using `tsc --noEmit`.
+```
+
+[Here is that issue link](https://github.com/withastro/language-tools/issues/727) for reference, it confirms there
+are issues with Astro and TypeScript at the moment.
+
+None of these errors actually prevent the site from building, but they are annoying and make it difficult to use the
+IDE to its full potential. God help you if you try to run linter pre-hooks. I've learned to ignore the errors in the
+IDE, which is a bad habit, but hopefully we can get some relief soon. This may or may not be an issue in VSCode, but
+I am pretty invested into the JetBrains ecosystem, and VSCode comes with its own host of issues.
+
+**Lack of Copy Buttons in Code Blocks**
+
+Another annoying issue I hope to address in the near future is the lack of copy buttons in code blocks. I don't know
+if this is to keep more JavaScript out of the client, but I consider it the key feature of a code block. This almost
+kept me from accepting this solution as my final choice, but I'm sure there must be a way to add this functionality.
+
+## Options Considered but not Taken
+
+### Hugo
+
+![Hugo Logo](@assets/images/2024/01/hugo-logo.svg)
+
+Despite wanting to work with tools I am familiar with, and having no [Go](https://go.dev/) experience, I really wanted [Hugo](https://gohugo.io/)
+to be the one that works for me. It has a huge community and a lot of themes available. However, I couldn't wrap my head
+around it. I had trouble installing multiple themes, and Hugo is not out of the box ready for use. Figuring out how to
+handle the EXE while not a huge challenge was a nuisance. Using a CLI to make a post seemed a bit much; I have an IDE
+for frontmatter templates. This process probably feels better on Linux, which I am not using.
+
+Hugo's biggest claim to fame is its speed in rendering static sites, and from what I can see, the reputation is
+warranted. I do want something that goes from push to live quickly. However, for a static site generator which will be
+the same speed after going live, this is an obvious "nice to have" and not a "must have." In some ways it's like buying
+a sports car for your daily commute: sure it's nice to have the power, but how often are you really using it? That said,
+I would quickly get frustrated with a site that takes forever to process.
+
+In the end, Hugo didn't work for me, but that shouldn't stop you from checking it out.
+
+### Jekyll
+
+![Jekyll Logo](@assets/images/2024/01/jekyll-logo.png)
+
+[Jekyll](https://jekyllrb.com/) is a Ruby-based static site generator. It has been around a long time, and a lot of sites swear by it. By
+reputation, Jekyll is a battle-tested workhorse. However, I am not familiar with Ruby and had a less than trivial
+time getting it set up the way I wanted. Honestly, it's probably a great solution and it has stood the test of time.
+At this point in my search, I was becoming more insistent that the solution use JavaScript (preferably TypeScript) to
+leverage my existing skills.
+
+### Gatsby
+
+![Gatsby Logo](@assets/images/2024/01/gatsby-logo.jpg)
+
+Moving on to JavaScript solutions, I looked at [Gatsby](https://www.gatsbyjs.com/). Gatsby is a React-based framework. It gets
+mentioned a lot when it comes to static site generation, and it is certainly able to do that, but I did not find it to
+be particularly suited to that task. In my experience with Gatsby, it appears to be a more general React framework with
+an emphasis on interconnectivity. It seems like a great solution for building a live CMS-driven site, but I did not
+find it to be a great fit for my needs. I also didn't find it to be particularly suited for blogging, out-of-the-box
+or with an existing theme.
+
+### Docusaurus
+
+![Docusaurus Logo](@assets/images/2024/01/docusaurus-logo.svg)
+
+Let me take a moment to say that I 🥰 [Docusaurus](https://docusaurus.io/). It is a fantastic tool that I actively use to build
+documentation sites and keep teams coordinated on their documentation needs. Docusaurus also has some out-of-the-box
+blogging functionality that works quite well, and I wouldn't hesitate to recommend it to someone who just wants to get
+a blog up and running quickly. It even supports MDX, and I'm able to freely share my components between Astro and
+Docusaurus. I find that it is very opinionated about how it wants to structure your content, and centered around the
+documentation use case. It doesn't appear to lend itself well to simple customizations. It's a great tool for its
+primary use case, but it's not a great fit for my needs in this case. That said, I can't overstate what a fantastic
+"Documentation as Code" tool Docusaurus is. Check it out, use it; you won't regret it.
+
+### Headless CMS (Sanity, Strapi)
+
+One thing that kept popping up in my search for the ultimate blog platform was the concept of a "Headless CMS". It's a
+fascinating concept. It does not line up with my requirements, but I had to
+take a short detour to learn more about this world. I looked at two of the most popular headless CMS solutions:
+[Sanity](https://www.sanity.io/) and [Strapi](https://strapi.io/). I was impressed with both of them, and I think I'll
+be returning to this concept in the future. I can see the utility in these solutions for sites which are live, dynamic,
+and heavily content-driven. They seem like a natural pairing with Gatsby, which I mentioned earlier.
+In the case of this blog, I want a static site with no moving parts, and I don't want to have to actually build the
+"head" to go with my headless CMS. I'm sticking a pin in this for when I need it.
+
+## Conclusion
+
+I'm glad I took the time to explore the landscape of static site generators. I learned a lot about the options
+available. However, I'm even happier I discovered Astro. It is a great solution that meets all my requirements
+and has a lot of nice-to-have features. As Astro ventures into the realm of server-side rendering, I'm watching eagerly
+to see where this promising young framework is headed and considering using it for a wider range of projects. I'm
+looking forward to writing more about my experiences with Astro and sharing some of the neat things I've learned.
+
+![We will watch your career with great interest](@assets/images/2024/01/watch-your-career.jpg)
+
+## References
+
+Astro
+
+- [Astro](https://astro.build/)
+- [Astro Themes](https://astro.build/themes/)
+- [AstroPaper Theme](https://astro.build/themes/details/astro-paper/)
+
+Honorable mentions (Static Site Generators)
+
+- [Hugo](https://gohugo.io/)
+- [Jekyll](https://jekyllrb.com/)
+- [Gatsby](https://www.gatsbyjs.com/)
+- [Docusaurus](https://docusaurus.io/)
+
+Honorable mentions (Astro Themes)
+
+- [Astro Boilerplate](https://astro.build/themes/details/astro-boilerplate/)
+- [Astro Cactus](https://astro.build/themes/details/astro-cactus/)
+
+Headless CMS: An interesting concept
+
+- [Sanity](https://www.sanity.io/)
+- [Strapi](https://strapi.io/)
